@@ -19,10 +19,28 @@ class WordManager:
         self.allowed_guesses: Set[str] = set()
         self.word_length = 5
         
+        # Try to load from default location if no path provided
+        if solutions_path is None:
+            default_solutions = Path(__file__).parent.parent.parent / 'word_lists' / 'solutions.txt'
+            if default_solutions.exists():
+                solutions_path = str(default_solutions)
+        
+        if guesses_path is None:
+            default_guesses = Path(__file__).parent.parent.parent / 'word_lists' / 'guesses.txt'
+            if default_guesses.exists():
+                guesses_path = str(default_guesses)
+        
         if solutions_path and os.path.exists(solutions_path):
             self.load_solutions(solutions_path)
+        elif not self.solutions:
+            # Fall back to default word list if no file found
+            self.generate_default_word_list()
+        
         if guesses_path and os.path.exists(guesses_path):
             self.load_guesses(guesses_path)
+        elif not self.allowed_guesses:
+            # If no guesses file, use solutions as allowed guesses
+            self.allowed_guesses = set(self.solutions)
     
     def load_solutions(self, file_path: str) -> None:
         """Load solution words from file."""

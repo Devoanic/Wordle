@@ -85,3 +85,4 @@ The system uses a default word list. To use custom words, see the README.
 3. **Custom word lists**: Add your own word list files
 4. **Tune hyperparameters**: Adjust learning rate, batch size, etc.
 
+

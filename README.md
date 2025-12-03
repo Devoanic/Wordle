@@ -10,6 +10,7 @@ An intelligent Wordle solver using machine learning to predict optimal guesses b
 - **Training System**: Automated data generation and model training
 - **Evaluation Metrics**: Comprehensive performance analysis
 - **CLI Interface**: Interactive solver for real-time gameplay
+- **Overlay Assistant**: GUI overlay that stays on top while playing Wordle
 
 ## Project Structure
 
@@ -81,7 +82,45 @@ python scripts/solve.py --model models/wordle_mlp_50epochs.pt --interactive
 python scripts/solve.py --model models/wordle_mlp_50epochs.pt --solution apple
 ```
 
-### 4. Evaluation
+### 4. Overlay Assistant (Real-time Wordle Helper)
+
+**Perfect for playing the actual Wordle game!** The overlay window stays on top and provides suggestions as you play.
+
+**With Baseline Solver** (no training needed):
+
+```bash
+python scripts/overlay.py
+```
+
+**With ML Model**:
+
+```bash
+python scripts/overlay.py --model models/wordle_mlp_50epochs.pt
+```
+
+**Options:**
+
+- `--model`: Path to ML model (uses baseline if not provided)
+- `--model-type`: `mlp` or `lstm` (default: `mlp`)
+- `--strategy`: Baseline strategy: `entropy`, `frequency`, or `random` (default: `entropy`)
+
+**How to use:**
+
+1. Open the Wordle game in your browser
+2. Run the overlay script
+3. Enter your guess and feedback (G/Y/X) after each turn
+4. Get top 5 suggestions instantly!
+5. The window stays on top so you can see suggestions while playing
+
+**Feedback Format:**
+
+- `G` or `2` = Green (correct letter, correct position)
+- `Y` or `1` = Yellow (correct letter, wrong position)
+- `X` or `0` = Gray (letter not in word)
+
+Example: After guessing "CRANE" and getting feedback, enter `GYXXG` or `21002`
+
+### 5. Evaluation
 
 Compare ML model against baseline:
 
