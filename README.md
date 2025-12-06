@@ -11,12 +11,14 @@ An intelligent Wordle solver using machine learning to predict optimal guesses b
 - **Evaluation Metrics**: Comprehensive performance analysis
 - **CLI Interface**: Interactive solver for real-time gameplay
 - **Overlay Assistant**: GUI overlay that stays on top while playing Wordle
+- **Browser Extension**: Automatically reads Wordle game state and provides suggestions
 
 ## Project Structure
 
 ```
 Wordle/
 ├── word_lists/          # Word lists (solutions and allowed guesses)
+├── extension/           # Browser extension files
 ├── src/
 │   ├── game/           # Game engine and feedback
 │   ├── models/         # ML model architectures
@@ -120,7 +122,52 @@ python scripts/overlay.py --model models/wordle_mlp_50epochs.pt
 
 Example: After guessing "CRANE" and getting feedback, enter `GYXXG` or `21002`
 
-### 5. Evaluation
+### 5. Browser Extension (Automatic Wordle Assistant)
+
+**The easiest way to use the solver!** The extension automatically reads your Wordle game and provides suggestions without any manual input.
+
+**Setup:**
+
+1. **Start the server:**
+
+   ```bash
+   python scripts/wordle_server.py --port 5000
+   ```
+
+   Keep this running in the background.
+
+2. **Load the extension:**
+
+   **Chrome/Edge:**
+
+   - Open `chrome://extensions/` (or `edge://extensions/`)
+   - Enable "Developer mode" (toggle in top right)
+   - Click "Load unpacked"
+   - Navigate to the `extension/` folder in this project
+   - Select the folder
+
+   **Firefox:**
+
+   - Open `about:debugging`
+   - Click "This Firefox"
+   - Click "Load Temporary Add-on"
+   - Navigate to `extension/manifest.json` and select it
+
+3. **Use it:**
+   - Go to https://www.nytimes.com/games/wordle/
+   - The suggestions panel will appear automatically
+   - It reads your guesses and feedback automatically
+   - No typing needed!
+
+**Options:**
+
+- `--port`: Port for the server (default: 5000)
+- `--model`: Path to ML model (uses baseline if not provided)
+- `--model-type`: `mlp` or `lstm` (default: `mlp`)
+
+**Note:** The extension works with NYTimes Wordle and Wordle Unlimited. For detailed setup instructions, see `extension/SETUP.md`.
+
+### 6. Evaluation
 
 Compare ML model against baseline:
 

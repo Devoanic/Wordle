@@ -70,6 +70,12 @@ class Evaluator:
                         results['games_won'] += 1
                         results['guess_counts'].append(turn + 1)
                         results['guess_distribution'][turn + 1] += 1
+                        # Track the solved word
+                        try:
+                            from src.game.word_tracker import track_solved_word
+                            track_solved_word(solution)
+                        except:
+                            pass  # Don't fail evaluation if tracking fails
                         break
                 except Exception as e:
                     print(f"Error in game: {e}")
@@ -102,6 +108,7 @@ class Evaluator:
             pct = count / (results['games_won'] + results['games_lost']) * 100
             print(f"  {i} guess(es): {count} games ({pct:.1f}%)")
         print("="*50)
+
 
 
 

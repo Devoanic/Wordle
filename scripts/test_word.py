@@ -9,6 +9,7 @@ from src.game.word_manager import WordManager
 from src.game.game_engine import WordleGame, Feedback
 from src.evaluation.baseline import BaselineSolver
 from scripts.solve import WordleSolver
+from src.game.word_tracker import track_solved_word
 
 
 def print_feedback_visual(feedback):
@@ -60,10 +61,12 @@ def solve_word_baseline(word: str, strategy: str = 'entropy'):
         print(f"Turn {turn + 1}: {next_guess.upper():<10} {print_feedback_visual(result.feedback)}")
         
         if result.is_solved:
-            print(f"\n✅ Solved in {turn + 1} guess(es)!")
+            print(f"\n[SUCCESS] Solved in {turn + 1} guess(es)!")
+            # Track the solved word
+            track_solved_word(word)
             return turn + 1
     
-    print(f"\n❌ Failed to solve in 6 guesses")
+    print(f"\n[FAILED] Failed to solve in 6 guesses")
     print(f"Solution was: {word.upper()}")
     return 7
 
@@ -106,10 +109,12 @@ def solve_word_ml(word: str, model_path: str, model_type: str = 'mlp'):
         print(f"Turn {turn + 1}: {next_guess.upper():<10} {print_feedback_visual(result.feedback)}")
         
         if result.is_solved:
-            print(f"\n✅ Solved in {turn + 1} guess(es)!")
+            print(f"\n[SUCCESS] Solved in {turn + 1} guess(es)!")
+            # Track the solved word
+            track_solved_word(word)
             return turn + 1
     
-    print(f"\n❌ Failed to solve in 6 guesses")
+    print(f"\n[FAILED] Failed to solve in 6 guesses")
     print(f"Solution was: {word.upper()}")
     return 7
 

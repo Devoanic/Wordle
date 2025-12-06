@@ -41,6 +41,32 @@ def main():
     if not word_manager.solutions:
         word_manager.generate_default_word_list()
     
+    # Load training solutions if provided
+    training_solutions = None
+    if args.word_list:
+        print(f"Loading training solutions from {args.word_list}...")
+        training_solutions = []
+        with open(args.word_list, 'r', encoding='utf-8') as f:
+            for line in f:
+                word = line.strip().upper()
+                if len(word) == 5 and word.isalpha():
+                    training_solutions.append(word.lower())
+        print(f"Loaded {len(training_solutions)} training solutions")
+    else:
+        # Try to load default training solutions
+        training_file = Path(__file__).parent.parent / 'word_lists' / 'training_solutions.txt'
+        if training_file.exists():
+            print(f"Loading training solutions from {training_file}...")
+            training_solutions = []
+            with open(training_file, 'r', encoding='utf-8') as f:
+                for line in f:
+                    word = line.strip().upper()
+                    if len(word) == 5 and word.isalpha():
+                        training_solutions.append(word.lower())
+            print(f"Loaded {len(training_solutions)} training solutions")
+        else:
+            print("No training solutions file found, using random solutions from word list")
+    
     # Initialize state encoder
     state_encoder = StateEncoder(word_length=5, max_guesses=6)
     
@@ -77,9 +103,11 @@ def main():
     
     # Generate training data
     print(f"\nGenerating {args.num_games} training games...")
+    if training_solutions:
+        print(f"Using {len(training_solutions)} specific solution words")
     data_generator = DataGenerator(word_manager, state_encoder, strategy='random')
     
-    states, targets = data_generator.generate_dataset(args.num_games)
+    states, targets = data_generator.generate_dataset(args.num_games, solutions=training_solutions)
     print(f"Generated {len(states)} training samples")
     
     # Create dataset and split
@@ -116,6 +144,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 

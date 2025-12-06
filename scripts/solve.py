@@ -109,7 +109,35 @@ class WordleSolver:
         top_words = [self.all_words[idx] for idx in top_indices[0].cpu().numpy()]
         valid_predictions = [w for w in top_words if w in candidates]
         
-        return valid_predictions[0] if valid_predictions else candidates[0]
+        # Prefer common Wordle solutions if available
+        if valid_predictions:
+            common_words = self._load_common_words()
+            common_predictions = [w for w in valid_predictions if w in common_words]
+            if common_predictions:
+                return common_predictions[0]
+            return valid_predictions[0]
+        
+        # If no ML predictions, prefer common words from candidates
+        if candidates:
+            common_words = self._load_common_words()
+            common_candidates = [w for w in candidates if w in common_words]
+            if common_candidates:
+                return common_candidates[0]
+        
+        return candidates[0] if candidates else None
+    
+    def _load_common_words(self):
+        """Load common Wordle solution words."""
+        from pathlib import Path
+        common_file = Path(__file__).parent.parent / 'word_lists' / 'common_wordle_solutions.txt'
+        common_words = set()
+        if common_file.exists():
+            with open(common_file, 'r', encoding='utf-8') as f:
+                for line in f:
+                    word = line.strip().lower()
+                    if len(word) == 5 and word.isalpha():
+                        common_words.add(word)
+        return common_words
 
 
 def feedback_from_string(feedback_str: str) -> list:
@@ -234,6 +262,9 @@ def solve_mode(model_path: str, solution: str, model_type: str = 'mlp'):
         
         if result.is_solved:
             print(f"\n✅ Solved in {turn + 1} guesses!")
+            # Track the solved word
+            from src.game.word_tracker import track_solved_word
+            track_solved_word(solution)
             return turn + 1
     
     print(f"\n❌ Failed to solve in 6 guesses")

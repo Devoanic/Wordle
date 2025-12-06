@@ -136,7 +136,10 @@ class DataGenerator:
         all_targets = []
         
         for i in range(num_games):
-            solution = random.choice(solutions) if solutions else None
+            if solutions and len(solutions) > 0:
+                solution = random.choice(solutions)
+            else:
+                solution = None
             samples = self.generate_game_data(solution=solution)
             
             for sample in samples:

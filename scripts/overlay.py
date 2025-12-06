@@ -10,6 +10,8 @@ from src.game.word_manager import WordManager
 from src.game.game_engine import Feedback
 from src.evaluation.baseline import BaselineSolver
 from scripts.solve import WordleSolver
+from src.game.word_tracker import track_solved_word
+from src.game.letter_analyzer import LetterAnalyzer
 
 
 class WordleOverlay:
@@ -40,6 +42,9 @@ class WordleOverlay:
         self.word_manager = WordManager()
         if not self.word_manager.solutions:
             self.word_manager.generate_default_word_list()
+        
+        # Initialize letter analyzer
+        self.letter_analyzer = LetterAnalyzer()
         
         # Initialize solver
         if model_path:
@@ -316,6 +321,10 @@ class WordleOverlay:
         # Check if solved
         if all(f == Feedback.GREEN for f in feedback):
             messagebox.showinfo("Solved!", f"Congratulations! Solved in {len(self.guesses)} guesses!")
+            # Track the solved word
+            self._track_solved_word(guess)
+            # Refresh letter analyzer to include new word in statistics
+            self.letter_analyzer.refresh()
     
     def clear_all(self):
         """Clear all guesses and reset."""
@@ -352,7 +361,16 @@ class WordleOverlay:
         self.suggestions_text.delete(1.0, tk.END)
         
         if not self.guesses:
-            self.suggestions_text.insert(tk.END, "Enter your first guess to get suggestions!")
+            # Show optimal starting words for first guess
+            all_words = self.word_manager.get_all_valid_words()
+            best_starters = self.letter_analyzer.get_best_starting_words(all_words, top_k=5)
+            
+            self.suggestions_text.insert(tk.END, "Optimal Starting Words:\n\n")
+            for i, (word, score) in enumerate(best_starters, 1):
+                vowel_count = self.letter_analyzer.get_vowel_count(word)
+                self.suggestions_text.insert(tk.END, f"{i}. {word.upper()} (Score: {score:.0f}, Vowels: {vowel_count})\n")
+            
+            self.suggestions_text.insert(tk.END, "\nTip: Words with 2-3 vowels and unique letters work best!")
             return
         
         try:
@@ -431,6 +449,12 @@ class WordleOverlay:
             self.history_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
             self.history_expanded = True
             self.update_history()
+    
+    def _track_solved_word(self, word: str):
+        """Track a successfully solved word."""
+        track_solved_word(word)
+        # Refresh letter analyzer to update statistics
+        self.letter_analyzer.refresh()
     
     def run(self):
         """Start the overlay."""
